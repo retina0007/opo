@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retina Flow | {{ driving_school_name }} auf Autopilot</title>
+    <meta name="description" content="Deine persönliche KI-Assistentin übernimmt WhatsApp & Bewertungen. Spart 23.000€ Mitarbeiterkosten pro Jahr.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700;800&display=swap" rel="stylesheet">
+
+    <!-- Calendly Widget CSS -->
+    <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+    
+    <!-- VAPI Web SDK -->
+    <script src="/static/vapi-web-sdk.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['DM Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0540AD',
+                        primaryDark: '#032a75',
+                        accent: '#06B6D4',
+                        accentHover: '#0891B2',
+                        gold: '#D4AF37',
+                        goldLight: '#F3E5AB',
+                        bgDark: '#070709',
+                        bgLight: '#FAFAFA',
+                        textDark: '#111827',
+                        textGray: '#6B7280',
+                        navBg: 'rgba(255, 255, 255, 0.75)',
+                    },
+                    boxShadow: {
+                        'premium': '0 20px 50px -12px rgba(0, 0, 0, 0.1)',
+                        'glow': '0 0 20px rgba(6, 182, 212, 0.3)',
+                        'inner-white': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FAFAFA;
+            color: #111827;
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @keyframes float-gentle {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+        .animate-float-gentle {
+            animation: float-gentle 6s ease-in-out infinite;
+        }
+        
+        .nav-glass {
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .text-gradient-gold {
+            background: linear-gradient(135deg, #D4AF37 0%, #F3E5AB 50%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gemini-glow-container::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(90deg, #0540AD, #06B6D4, #a5f3fc, #06B6D4, #0540AD);
+            background-size: 300% 100%;
+            animation: gemini-shimmer 4s linear infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: 50;
+        }
+
+        @keyframes gemini-shimmer {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0540AD;
+            border-radius: 5px;
+            border: 2px solid #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06B6D4;
+        }
+
+        /* Feather Icons inline */
+        .feather { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    </style>
+
+    <!-- Calendly Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const scriptSrc = "https://assets.calendly.com/assets/external/widget.js";
+            const head = document.querySelector("head");
+            
+            if (!document.querySelector(`script[src="${scriptSrc}"]`)) {
+                const script = document.createElement("script");
+                script.setAttribute("src", scriptSrc);
+                script.setAttribute("async", "true");
+                head.appendChild(script);
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="font-sans text-textDark bg-white antialiased overflow-x-hidden">
+        
+        <!-- Navigation -->
+        <div class="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+            <nav class="pointer-events-auto bg-navBg nav-glass border border-white/60 shadow-xl rounded-full pl-6 pr-2 py-2 flex items-center justify-between max-w-5xl w-full transition-all duration-300 hover:shadow-2xl">
+                <a href="#start" class="flex items-center gap-2.5 mr-4 group">
+                    <span class="font-bold text-lg tracking-tight text-primary">{{ driving_school_name }}</span>
+                </a>
+                
+                <div class="hidden md:flex items-center gap-2">
+                    <a href="#start" class="px-4 py-1.5 text-sm font-medium rounded-full text-textDark hover:text-primary transition-colors duration-300">Start</a>
+                    <a href="#problems" class="px-4 py-1.5 text-sm font-medium rounded-full text-textDark hover:text-primary transition-colors duration-300">Probleme</a>
+                    <a href="#solutions" class="px-4 py-1.5 text-sm font-medium rounded-full text-textDark hover:text-primary transition-colors duration-300">Lösungen</a>
+                    <a href="#demo" class="px-4 py-1.5 text-sm font-medium rounded-full text-textDark hover:text-primary transition-colors duration-300">Live Demo</a>
+                    <a href="#faq" class="px-4 py-1.5 text-sm font-medium rounded-full text-textDark hover:text-primary transition-colors duration-300">FAQ</a>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <a href="#termin" class="bg-primary text-white px-5 py-2.5 rounded-full font-bold text-xs hover:bg-blue-800 transition shadow-lg hover:shadow-blue-900/20 flex items-center gap-2">
+                        Gespräch buchen
+                        <svg class="feather w-3 h-3"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Hero Section -->
+        <section id="start" class="relative pt-28 pb-16 lg:pt-36 lg:pb-32 px-4 overflow-hidden bg-bgDark">
+            <div class="absolute inset-0 z-0 pointer-events-none">
+                <div class="absolute inset-0 bg-gradient-to-r from-bgDark via-bgDark/90 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-bgDark via-transparent to-transparent"></div>
+            </div>
+            
+            <div class="max-w-7xl mx-auto relative z-20">
+                <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                    <div class="reveal space-y-8 text-white">
+                        <div class="inline-flex items-center gap-2 bg-white/5 backdrop-blur-xl border border-white/10 text-accent px-4 py-2 rounded-full text-xs lg:text-sm font-bold shadow-2xl ring-1 ring-white/5 uppercase tracking-widest">
+                            Das Betriebssystem für Fahrschulen
+                        </div>
+                        
+                        <h1 class="text-5xl lg:text-7xl font-extrabold leading-[1.1] text-white tracking-tighter">
+                            8-12 Stunden pro Woche zurück & <br />
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-accent to-blue-200">+30% mehr Anmeldungen.</span>
+                        </h1>
+                        
+                        <p class="text-lg lg:text-2xl text-gray-300 leading-relaxed font-light max-w-xl">
+                            Hey {{ customer_firstname }}! Stoppe das WhatsApp-Chaos in {{ driving_school_location }}. Wir richten dir ein System ein, das die unbezahlte Tipp-Zeit deiner Fahrlehrer in bezahlte Fahrstunden verwandelt – ohne IT-Aufwand für dich.
+                        </p>
+                        
+                        <div class="space-y-4 pt-4">
+                            <div class="flex items-center gap-4 group">
+                                <div class="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center border border-accent/30 group-hover:bg-accent group-hover:text-white transition-all duration-300">
+                                    <svg class="feather w-4 h-4 text-accent group-hover:text-white"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <span class="text-gray-200 text-lg font-medium">
+                                    <strong class="text-white">Zeit-Gewinn:</strong> Der Termin-Autopilot übernimmt die Absprachen.
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-4 group">
+                                <div class="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center border border-accent/30 group-hover:bg-accent group-hover:text-white transition-all duration-300">
+                                    <svg class="feather w-4 h-4 text-accent group-hover:text-white"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <span class="text-gray-200 text-lg font-medium">
+                                    <strong class="text-white">Mehr Anmeldungen:</strong> Platz 1 bei Google sorgt für neue Schüler.
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-4 group">
+                                <div class="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center border border-accent/30 group-hover:bg-accent group-hover:text-white transition-all duration-300">
+                                    <svg class="feather w-4 h-4 text-accent group-hover:text-white"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <span class="text-gray-200 text-lg font-medium">
+                                    <strong class="text-white">0% Technik-Stress:</strong> Wir richten alles schlüsselfertig ein.
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-5 pt-8">
+                            <a href="#termin" class="bg-white text-black px-10 py-5 rounded-full font-black text-lg hover:scale-105 transition-all shadow-glow flex items-center justify-center gap-3 group">
+                                Kostenlose Analyse buchen
+                                <svg class="feather w-6 h-6 group-hover:translate-x-1 transition-transform"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                            </a>
+                            <button id="vapiButton" class="bg-white/5 backdrop-blur-2xl border border-white/10 text-white px-10 py-5 rounded-full font-black text-lg hover:bg-white/10 transition-all flex items-center justify-center gap-3">
+                                <svg class="feather w-6 h-6 text-accent"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                                Mit KI sprechen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Problem Section -->
+        <section id="problems" class="py-32 px-6 bg-bgDark text-white relative">
+            <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+            
+            <div class="max-w-7xl mx-auto relative z-10">
+                <div class="reveal text-center mb-24">
+                    <div class="inline-block px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-black uppercase tracking-widest mb-6">Realitäts-Check</div>
+                    <h2 class="text-5xl lg:text-7xl font-black mb-8 tracking-tighter text-white">
+                        Warum {{ driving_school_name }} <br/>
+                        <span class="text-gray-500">unnötig Zeit verliert.</span>
+                    </h2>
+                    <p class="text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed">
+                        Du hast deine Fahrschule gegründet, um Unternehmer zu sein – nicht um der hochbezahlte 24/7-Notdienst für Terminfragen zu spielen.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <!-- Problem 1 -->
+                    <div class="reveal bg-[#0f0f13] border border-white/5 p-12 rounded-[2.5rem] hover:border-white/20 transition-all duration-500 group relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-red-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-red-500/10 transition-all"></div>
+                        <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-8 border border-white/10 group-hover:scale-110 transition-transform">
+                            <svg class="feather w-8 h-8 text-red-500"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        </div>
+                        <h3 class="text-3xl font-black mb-6 text-white tracking-tight">Der "Teure Sekretär"-Effekt</h3>
+                        <p class="text-gray-400 mb-10 leading-relaxed text-lg">
+                            Deine Fahrlehrer (und du) verbringen pro Woche mehrere Stunden mit Nachrichten tippen. Das sind teure Arbeitsstunden, in denen keine Fahrstunde gegeben wird.
+                        </p>
+                    </div>
+                    
+                    <!-- Problem 2 -->
+                    <div class="reveal bg-[#0f0f13] border border-white/5 p-12 rounded-[2.5rem] hover:border-white/20 transition-all duration-500 group relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-orange-500/10 transition-all"></div>
+                        <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-8 border border-white/10 group-hover:scale-110 transition-transform">
+                            <svg class="feather w-8 h-8 text-orange-500"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                        </div>
+                        <h3 class="text-3xl font-black mb-6 text-white tracking-tight">Wachstum bringt aktuell nur Chaos</h3>
+                        <p class="text-gray-400 mb-10 leading-relaxed text-lg">
+                            Mehr Schüler bedeuten aktuell zwingend mehr Arbeit am Handy. Du kannst deinen Betrieb nicht vergrößern, ohne selbst auszubrennen.
+                        </p>
+                    </div>
+                    
+                    <!-- Problem 3 -->
+                    <div class="reveal bg-[#0f0f13] border border-white/5 p-12 rounded-[2.5rem] hover:border-white/20 transition-all duration-500 group relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-all"></div>
+                        <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-8 border border-white/10 group-hover:scale-110 transition-transform">
+                            <svg class="feather w-8 h-8 text-blue-500"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        </div>
+                        <h3 class="text-3xl font-black mb-6 text-white tracking-tight">Die unsichtbare Konkurrenz</h3>
+                        <p class="text-gray-400 mb-10 leading-relaxed text-lg">
+                            Deine Fahrlehrer machen einen super Job, aber online sieht man das nicht. Die Konkurrenz sammelt fleißig Bewertungen, während deine Erfolge im Auto bleiben.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Before/After Section -->
+        <section class="py-24 px-6 bg-white relative">
+            <div class="max-w-7xl mx-auto">
+                <div class="reveal text-center mb-12 lg:mb-16">
+                    <h2 class="text-3xl lg:text-5xl font-bold mb-4 lg:mb-6 text-textDark">Vorher vs. Nachher</h2>
+                    <p class="text-lg lg:text-xl text-gray-500 max-w-3xl mx-auto">
+                        So sieht dein Arbeitsalltag bei {{ driving_school_name }} aus
+                    </p>
+                </div>
+                <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
+                    <!-- BEFORE -->
+                    <div class="reveal space-y-6">
+                        <div class="inline-flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-full text-sm font-bold mb-4">
+                            <svg class="feather w-4 h-4"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                            VORHER
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-white p-5 lg:p-6 rounded-2xl border-2 border-red-100 shadow-lg">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-red-50 rounded-xl flex items-center justify-center border border-red-100 shrink-0">
+                                        <svg class="feather w-5 h-5 text-red-600"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg mb-2 text-red-900">Montag 08:00 Uhr</h4>
+                                        <p class="text-textGray text-sm leading-relaxed">
+                                            Handy vibriert durchgehend. 47 WhatsApp-Nachrichten mit Terminanfragen. Du versuchst, alle zu koordinieren, während du eigentlich Fahrstunden gibst.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- AFTER -->
+                    <div class="reveal space-y-6">
+                        <div class="inline-flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-full text-sm font-bold mb-4">
+                            <svg class="feather w-4 h-4"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            NACHHER
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-white p-5 lg:p-6 rounded-2xl border-2 border-green-100 shadow-lg">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-green-50 rounded-xl flex items-center justify-center border border-green-100 shrink-0">
+                                        <svg class="feather w-5 h-5 text-green-600"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg mb-2 text-green-900">Montag 08:00 Uhr</h4>
+                                        <p class="text-textGray text-sm leading-relaxed">
+                                            Du trinkst entspannt deinen Kaffee. Der Termin-Autopilot hat über Nacht 27 Anfragen bearbeitet und optimal verteilt. Dein Kalender ist voll – ohne dein Zutun.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solutions Section -->
+        <section id="solutions" class="py-24 px-6 bg-[#050507] text-white relative overflow-hidden">
+            <div class="max-w-7xl mx-auto relative z-10">
+                <div class="reveal text-center mb-12 lg:mb-16">
+                    <h2 class="text-3xl lg:text-5xl font-bold mb-4 lg:mb-6">Dein Fahrschul-Upgrade</h2>
+                    <p class="text-lg lg:text-xl text-gray-400 max-w-3xl mx-auto font-light">
+                        Wir installieren keine komplizierte Software. Wir sorgen für mehr Gewinn. Das sind die zwei Säulen unseres Systems:
+                    </p>
+                </div>
+                <div class="grid lg:grid-cols-2 gap-8 mb-12">
+                    <!-- Säule 1 -->
+                    <div class="reveal bg-white/5 backdrop-blur-sm border border-white/10 p-6 lg:p-8 rounded-2xl shadow-2xl hover:bg-white/10 transition-all duration-300">
+                        <div class="flex items-start justify-between mb-6">
+                            <div class="w-12 h-12 lg:w-14 lg:h-14 bg-yellow-400 rounded-2xl flex items-center justify-center">
+                                <svg class="feather w-6 h-6 text-yellow-900"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
+                            </div>
+                            <span class="bg-green-400 text-green-900 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Säule 1: Ruf</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 uppercase">Marktführerschaft durch Ruf</h3>
+                        <p class="text-gray-400 mb-6 leading-relaxed text-sm lg:text-base">
+                            Sichere dir den Platzhirsch-Status bei Google. Unsere KI sorgt dafür, dass jeder zufriedene Schüler deine Fahrschule öffentlich empfiehlt.
+                        </p>
+                        <div class="bg-white/10 border border-white/20 p-4 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-300 uppercase tracking-wider italic">Ergebnis</span>
+                                <span class="text-2xl font-bold text-green-400">+450% Rezensionen</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Säule 2 -->
+                    <div class="reveal bg-white/5 backdrop-blur-sm border border-white/10 p-6 lg:p-8 rounded-2xl shadow-2xl hover:bg-white/10 transition-all duration-300">
+                        <div class="flex items-start justify-between mb-6">
+                            <div class="w-12 h-12 lg:w-14 lg:h-14 bg-blue-600 rounded-2xl flex items-center justify-center">
+                                <svg class="feather w-6 h-6 text-white"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            </div>
+                            <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Säule 2: Zeit</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 uppercase">Operative Entlastung</h3>
+                        <p class="text-gray-400 mb-6 leading-relaxed text-sm lg:text-base">
+                            Reduziere die "Tipp-Zeit" deiner Fahrlehrer auf Null. Das System klärt Terminfragen und füllt Lücken im Kalender vollautomatisch.
+                        </p>
+                        <div class="bg-white/10 border border-white/20 p-4 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-300 uppercase tracking-wider italic">Zeitgewinn</span>
+                                <span class="text-2xl font-bold text-green-400">8-12h pro Woche</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bonus Section -->
+        <section class="py-24 px-6 bg-[#08080a] relative overflow-hidden">
+            <div class="max-w-5xl mx-auto">
+                <div class="reveal border border-yellow-500/30 bg-gradient-to-br from-[#1c1c1e] to-[#000000] rounded-[2.5rem] p-10 lg:p-16 shadow-[0_0_60px_-20px_rgba(234,179,8,0.15)] relative overflow-hidden group">
+                    <div class="absolute -top-32 -right-32 w-64 h-64 bg-yellow-500/10 rounded-full blur-[80px] pointer-events-none group-hover:bg-yellow-500/20 transition-colors duration-700"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-8">
+                            <div class="text-4xl">🎁</div>
+                            <div class="inline-flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase shadow-sm">
+                                <svg class="feather w-4 h-4"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"></path></svg>
+                                RECRUITING & MARKEN-BONUS
+                            </div>
+                        </div>
+                        <h3 class="text-4xl lg:text-5xl font-bold mb-6 text-white tracking-tight">
+                            Der Social-Media-Autopilot <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-200">(Wert: 6.000€/Jahr)</span>
+                        </h3>
+                        
+                        <p class="text-xl text-gray-400 mb-10 max-w-3xl font-light leading-relaxed">
+                            Folge @{{ bonus_school_name }} auf Instagram! Fahrlehrermangel ist dein größtes Problem? Werde als modernster Arbeitgeber sichtbar. Wir posten deine Erfolge vollautomatisch.
+                        </p>
+                        
+                        <div class="mt-8 flex flex-col sm:flex-row items-center gap-6">
+                            <a href="#termin" class="bg-yellow-500 text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-400 transition shadow-lg flex items-center gap-2 group">
+                                Bonus-Verfügbarkeit prüfen
+                                <svg class="feather w-5 h-5 group-hover:translate-x-1 transition-transform"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendly Section -->
+        <section id="termin" class="py-20 px-4 bg-bgLight border-t border-gray-100 relative overflow-hidden">
+            <div class="max-w-5xl mx-auto relative z-10">
+                <div class="reveal text-center space-y-8">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-bold">
+                        <svg class="feather w-4 h-4"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        Unverbindliches Kennenlernen
+                    </div>
+                    <h2 class="text-4xl lg:text-5xl font-bold leading-tight text-textDark">
+                        Bereit, dein Handy endlich <span class="text-primary">wieder lautlos zu stellen?</span>
+                    </h2>
+                    <p class="text-lg text-textGray max-w-2xl mx-auto">
+                        Hole dir 10+ Stunden Freizeit zurück und sichere dir den Social-Media-Bonus. Wir richten alles für dich ein.
+                    </p>
+                    
+                    <div class="mt-12 bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100">
+                        <div class="calendly-inline-widget" data-url="https://calendly.com/delkhazatto19/30min?hide_gdpr_banner=1&background_color=ffffff&text_color=1a1a1a&primary_color=0540ad" style="min-width:320px;height:750px;"></div>
+                    </div>
+
+                    <div class="pt-8 flex flex-col items-center gap-4">
+                        <p class="text-sm text-textGray flex items-center gap-2">
+                            <svg class="feather w-4 h-4 text-green-500"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            Datenschutzkonform & sicher • 30 Tage Geld-zurück-Garantie
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo Section Placeholder -->
+        <section id="demo" class="py-16 px-4 bg-[#050507] text-white">
+            <div class="max-w-5xl mx-auto text-center">
+                <h2 class="text-4xl font-bold mb-4">Live Demo</h2>
+                <p class="text-gray-400 mb-8">Probiere jetzt den Voice-Bot aus – klicke auf "Mit KI sprechen" oben!</p>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="py-16 lg:py-24 px-4 bg-gradient-to-br from-gray-50 to-blue-50">
+            <div class="max-w-4xl mx-auto">
+                <div class="reveal text-center mb-12 lg:mb-16">
+                    <h2 class="text-3xl lg:text-5xl font-bold mb-4 lg:mb-6">Klartext & Fragen</h2>
+                    <p class="text-lg lg:text-xl text-textGray">Alles, was du als Inhaber wissen musst</p>
+                </div>
+                <div class="reveal space-y-4">
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                        <button class="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-textDark">Ich bin kein IT-Experte – bekomme ich das hin?</span>
+                            <svg class="feather w-5 h-5 text-textGray"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                        <button class="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-textDark">Was kostet Retina Flow eigentlich?</span>
+                            <svg class="feather w-5 h-5 text-textGray"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                        <button class="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-50 transition">
+                            <span class="font-bold text-lg text-textDark">Gibt es eine Garantie?</span>
+                            <svg class="feather w-5 h-5 text-textGray"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-gray-400 py-16 border-t border-gray-800">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="grid md:grid-cols-12 gap-8 mb-12">
+                    <div class="md:col-span-4">
+                        <div class="flex items-center gap-2 mb-6">
+                            <span class="font-bold text-2xl text-white tracking-tight">Retina Flow</span>
+                        </div>
+                        <p class="text-sm leading-relaxed mb-6 text-gray-500 max-w-sm">Die All-in-One Automatisierungslösung für zukunftsorientierte Fahrschulen in {{ driving_school_location }}. Mehr Zeit für Schüler, mehr Umsatz für dich.</p>
+                    </div>
+                    <div class="hidden md:block md:col-span-2"></div>
+                    <div class="md:col-span-2">
+                        <h4 class="font-bold text-white mb-6 text-sm uppercase tracking-wider">Kontakt</h4>
+                        <ul class="space-y-4 text-sm">
+                            <li class="flex items-start gap-3">
+                                <svg class="feather w-4 h-4 mt-0.5 text-primary"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                <a href="mailto:info@retinaflow.de" class="hover:text-white transition-colors duration-200">info@retinaflow.de</a>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <svg class="feather w-4 h-4 mt-0.5 text-primary"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                <a href="https://calendly.com/delkhazatto19/30min" target="_blank" rel="noreferrer" class="hover:text-white transition-colors duration-200">Termin buchen</a>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <svg class="feather w-4 h-4 mt-0.5 text-primary"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                <a href="{{ google_maps_link }}" target="_blank" rel="noreferrer" class="hover:text-white transition-colors duration-200">Google Bewertung</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+                    <p>&copy; 2025 {{ driving_school_name }} in {{ driving_school_location }}. Alle Rechte vorbehalten.</p>
+                    <div class="flex gap-6"><span class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>System operational</span></div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Floating Booking Button -->
+        <a href="https://calendly.com/delkhazatto19/30min" target="_blank" rel="noreferrer" class="fixed bottom-6 right-6 z-[60] bg-primary text-white p-4 rounded-full shadow-glow hover:scale-110 transition-transform flex items-center gap-3 font-bold group">
+            <span class="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap">Kostenloses Strategie-Gespräch</span>
+            <svg class="feather w-6 h-6"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </a>
+    </div>
+
+    <!-- VAPI JavaScript -->
+    <script>
+        // Reveal on Scroll Animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            reveals.forEach(reveal => observer.observe(reveal));
+        });
+
+        // VAPI Integration
+        let vapiInstance = null;
+        const vapiButton = document.getElementById('vapiButton');
+        
+        function initVapi() {
+            if (vapiInstance) return;
+            
+            vapiInstance = window.vapiSDK.run({
+                apiKey: "{{ public_key }}",
+                assistant: "{{ assistant_id }}",
+                config: {
+                    transcriber: {
+                        provider: "deepgram",
+                        model: "nova-2",
+                        language: "de"
+                    }
+                }
+            });
+            
+            vapiInstance.on('call-start', () => {
+                vapiButton.innerHTML = '<svg class="feather w-6 h-6 animate-pulse text-red-500"><circle cx="12" cy="12" r="10"></circle></svg> Beende Anruf';
+                vapiButton.classList.add('bg-red-500', 'hover:bg-red-600');
+                vapiButton.classList.remove('bg-white/5', 'hover:bg-white/10');
+            });
+            
+            vapiInstance.on('call-end', () => {
+                vapiButton.innerHTML = '<svg class="feather w-6 h-6 text-accent"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg> Mit KI sprechen';
+                vapiButton.classList.remove('bg-red-500', 'hover:bg-red-600');
+                vapiButton.classList.add('bg-white/5', 'hover:bg-white/10');
+            });
+        }
+        
+        vapiButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!vapiInstance) {
+                initVapi();
+                vapiInstance.start();
+            } else if (vapiInstance.state === 'active') {
+                vapiInstance.stop();
+            } else {
+                vapiInstance.start();
+            }
+        });
+    </script>
+</body>
+</html>
+

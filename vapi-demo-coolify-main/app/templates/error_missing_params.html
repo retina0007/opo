@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fehlende Parameter - VAPI Demo</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon.png">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .animate-bounce-slow {
+            animation: bounce 2s infinite;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+
+<body class="h-full bg-gradient-to-br from-red-50 to-orange-100 dark:from-gray-900 dark:to-gray-800">
+    <div class="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Error Icon -->
+            <div class="text-center">
+                <div class="mx-auto h-20 w-20 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center animate-pulse-slow">
+                    <svg class="h-10 w-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
+                    Parameter fehlen
+                </h2>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    Diese Seite benötigt wichtige Parameter um zu funktionieren
+                </p>
+            </div>
+
+            <!-- Error Details -->
+            <div class="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                    Fehlende Parameter:
+                </h3>
+                
+                <div class="space-y-3">
+                    {% for param in missing_params %}
+                    <div class="flex items-center space-x-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                        <svg class="h-5 w-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        <span class="text-sm font-medium text-red-800 dark:text-red-200">
+                            {{ param.replace('_', ' ').title() }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Current URL -->
+                <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aktuelle URL:</h4>
+                    <code class="text-xs text-gray-600 dark:text-gray-400 break-all">{{ current_url }}</code>
+                </div>
+
+                <!-- Correct URL Example -->
+                <div class="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <h4 class="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Korrekte URL sollte sein:</h4>
+                    <code class="text-xs text-green-700 dark:text-green-300 break-all">
+                        {{ current_url.split('?')[0] }}?customer_domain=beispiel.de&customer_name=Max Mustermann&customer_email=max@beispiel.de
+                    </code>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col space-y-3">
+                <button onclick="window.location.reload()" 
+                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Seite neu laden
+                </button>
+                
+                <button onclick="window.history.back()" 
+                        class="w-full flex justify-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Zurück
+                </button>
+            </div>
+
+            <!-- Help Text -->
+            <div class="text-center">
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Diese Seite ist für personalisierte VAPI-Demos konzipiert und benötigt spezifische Parameter.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
